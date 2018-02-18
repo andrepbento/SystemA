@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class SinkFilter extends FilterFramework {
+public class SinkFilter extends FilterTemplate {
 
     private File file = new File("OutputA.dat");
     private Calendar timeStamp = Calendar.getInstance();
@@ -24,49 +24,12 @@ public class SinkFilter extends FilterFramework {
             printWriter.write(String.format(stringFormat, "Time:", "Temperature(C):", "Altitude(m):"));
             printWriter.flush();
 
-            byte dataByte;
-            int bytesRead = 0;
-
-            long measurement;
-            int id;
-            int i;
-
             System.out.print("\n" + this.getName() + "::Sink Reading");
 
             while (true) {
                 try {
-                    id = 0;
-
-                    for (i = 0; i < Utils.ID_LENGTH; i++) {
-                        dataByte = ReadFilterInputPort();    // This is where we read the byte from the stream...
-
-                        id = id | (dataByte & 0xFF);        // We append the byte on to ID...
-
-                        if (i != Utils.ID_LENGTH - 1)                // If this is not the last byte, then slide the
-                        {                                    // previously appended byte to the left by one byte
-                            id = id << 8;                    // to make room for the next byte we append to the ID
-
-                        } // if
-
-                        bytesRead++;                        // Increment the byte count
-
-                    } // for
-
-                    measurement = 0;
-
-                    for (i = 0; i < Utils.MEASUREMENT_LENGTH; i++) {
-                        dataByte = ReadFilterInputPort();
-                        measurement = measurement | (dataByte & 0xFF);    // We append the byte on to measurement...
-
-                        if (i != Utils.MEASUREMENT_LENGTH - 1)                    // If this is not the last byte, then slide the
-                        {                                                // previously appended byte to the left by one byte
-                            measurement = measurement << 8;                // to make room for the next byte we append to the
-                            // measurement
-                        } // if
-
-                        bytesRead++;                                    // Increment the byte count
-
-                    } // if
+                    readNextId();
+                    readNextMeasurement();
 
                     if (id == Utils.TIME_ID) {
                         timeStamp.setTimeInMillis(measurement);
@@ -89,14 +52,11 @@ public class SinkFilter extends FilterFramework {
                     System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
                     break;
                 } // catch
-
             } // while
 
             printWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     } // run
-
 } // SinkFilter
