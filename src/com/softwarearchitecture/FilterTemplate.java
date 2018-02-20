@@ -2,19 +2,21 @@ package com.softwarearchitecture;
 
 abstract public class FilterTemplate extends FilterFramework {
 
-    byte dataByte;                // This is the data byte read from the stream
-    int bytesRead = 0;                // This is the number of bytes read from the stream
-    int bytesWritten = 0;                // This is the number of bytes written from the stream
+    private int inputPipeIndex = 0;
 
-    long measurement;                // This is the word used to store all measurements - conversions are illustrated.
-    int id;                            // This is the measurement id
-    int i;                            // This is a loop counter
+    private byte dataByte;
+    int bytesRead = 0;
+    int bytesWritten = 0;
 
-    public void readNextId() throws EndOfStreamException {
+    long measurement;
+    int id;
+    private int i;
+
+    public void readNextPairValues() throws EndOfStreamException {
         id = 0;
 
         for (i = 0; i < Utils.ID_LENGTH; i++) {
-            dataByte = ReadFilterInputPort();
+            dataByte = ReadFilterInputPort(inputPipeIndex);
             id = id | (dataByte & 0xFF);
 
             if (i != Utils.ID_LENGTH - 1) {
@@ -23,13 +25,11 @@ abstract public class FilterTemplate extends FilterFramework {
 
             bytesRead++;
         } // for
-    }
 
-    public void readNextMeasurement() throws EndOfStreamException {
         measurement = 0;
 
         for (i = 0; i < Utils.MEASUREMENT_LENGTH; i++) {
-            dataByte = ReadFilterInputPort();
+            dataByte = ReadFilterInputPort(inputPipeIndex);
             measurement = measurement | (dataByte & 0xFF);    // We append the byte on to measurement...
 
             if (i != Utils.MEASUREMENT_LENGTH - 1)                    // If this is not the last byte, then slide the
@@ -41,16 +41,20 @@ abstract public class FilterTemplate extends FilterFramework {
             bytesRead++;                                    // Increment the byte count
 
         } // if
+
+        if (inputPipeIndex < getPipedInputStreamCount() - 1) {
+            inputPipeIndex++;
+        } else {
+            inputPipeIndex = 0;
+        }
     }
 
-    public void writeIdToStream() {
+    public void writePairValuesToStream() {
         for (byte b : Utils.intToBytes(id)) {
             WriteFilterOutputPort(b);
             bytesWritten++;
         }
-    }
 
-    public void writeMeasurementToStream() {
         for (byte b : Utils.longToBytes(measurement)) {
             WriteFilterOutputPort(b);
             bytesWritten++;

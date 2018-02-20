@@ -5,10 +5,15 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class SourceFilter extends FilterFramework {
+public class SourceFilter extends FilterTemplate {
+
+    private String fileName = null;
+
+    public SourceFilter(String fileName) {
+        this.fileName = fileName;
+    }
 
     public void run() {
-        String fileName = "FlightData.dat";
         int bytesRead = 0;
         int bytesWritten = 0;
         DataInputStream in = null;
@@ -24,20 +29,20 @@ public class SourceFilter extends FilterFramework {
                 bytesRead++;
                 WriteFilterOutputPort(dataByte);
                 bytesWritten++;
-            } // while
-        } // try
-        catch (EOFException eofException) {
+            }
+        } catch (EOFException eofException) {
             System.out.println("\n" + this.getName() + "::End of file reached...");
             try {
                 in.close();
                 ClosePorts();
-                System.out.println("\n" + this.getName() + "::Read file complete, bytes read::" + bytesRead + " bytes written: " + bytesWritten);
+                System.out.println("\n" + this.getName() + "::Read file complete, bytes read::" + bytesRead
+                        + " bytes written: " + bytesWritten);
 
-            } catch (Exception closeerr) {
-                System.out.println("\n" + this.getName() + "::Problem closing input data file::" + closeerr);
-            } // catch
+            } catch (Exception closeErr) {
+                System.out.println("\n" + this.getName() + "::Problem closing input data file::" + closeErr);
+            }
         } catch (IOException iox) {
             System.out.println("\n" + this.getName() + "::Problem reading input data file::" + iox);
-        } // catch
-    } // run
-} // SourceFilter
+        }
+    }
+}

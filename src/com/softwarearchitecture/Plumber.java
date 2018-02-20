@@ -4,7 +4,7 @@ public class Plumber {
 
     public static void main(String argv[]) {
 
-        SourceFilter sourceFilter = new SourceFilter();
+        SourceFilter sourceFilter = new SourceFilter("FlightData.dat");
         TemperatureFilter temperatureFilter = new TemperatureFilter();
         AltitudeFilter altitudeFilter = new AltitudeFilter();
         SinkFilter sinkFilter = new SinkFilter();
@@ -17,5 +17,5 @@ public class Plumber {
         temperatureFilter.start();
         altitudeFilter.start();
         sinkFilter.start();
-    } // main
-} // Plumber
+    }
+}

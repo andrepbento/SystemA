@@ -12,7 +12,7 @@ public class SinkFilter extends FilterTemplate {
     private Calendar timeStamp = Calendar.getInstance();
     private SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy:dd:hh:mm:ss");
 
-    String stringFormat = "%-20s %-20s %-20s %n";
+    private String stringFormat = "%-20s %-20s %-20s %n";
 
     private int nFrame = 0;
     private double temperature, altitude;
@@ -28,8 +28,7 @@ public class SinkFilter extends FilterTemplate {
 
             while (true) {
                 try {
-                    readNextId();
-                    readNextMeasurement();
+                    readNextPairValues();
 
                     if (id == Utils.TIME_ID) {
                         timeStamp.setTimeInMillis(measurement);
@@ -46,17 +45,16 @@ public class SinkFilter extends FilterTemplate {
                                 timeStampFormat.format(timeStamp.getTime()), temperature, altitude));
                         printWriter.flush();
                     }
-                } // try
-                catch (EndOfStreamException e) {
+                } catch (EndOfStreamException e) {
                     ClosePorts();
                     System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
                     break;
-                } // catch
-            } // while
+                }
+            }
 
             printWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    } // run
-} // SinkFilter
+    }
+}
