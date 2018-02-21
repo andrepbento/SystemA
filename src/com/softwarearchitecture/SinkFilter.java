@@ -39,7 +39,7 @@ public class SinkFilter extends FilterTemplate {
                         altitude = Double.longBitsToDouble(measurement);
                     }
 
-                    if (id == Utils.TIME_ID && nFrame > 1) {
+                    if (id == Utils.TEMPERATURE_ID) {
                         System.out.println("\n" + this.getName() + "::Sink Writing" + "\n");
                         printWriter.write(String.format(stringFormat,
                                 timeStampFormat.format(timeStamp.getTime()), temperature, altitude));
